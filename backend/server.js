@@ -9,7 +9,6 @@ import { log } from './utils/logger.js';
 import { ensureMasterAdmin } from './utils/ensureMasterAdmin.js';
 import agentOffersRoutes from './routes/agent_offers.js';
 import mongoose from 'mongoose';
-import runBofaJob from './vendors/bofa/bofaJob.js';
 
 dotenv.config();
 
@@ -112,6 +111,7 @@ async function janitorOnce() {
 const app = express();
 const PORT = Number(process.env.PORT || 3015);
 const IS_WORKER = ['1','true','yes','on'].includes(String(process.env.AUTOMATION_WORKER || '').toLowerCase());
+// When AUTOMATION_WORKER is not truthy (1/true/yes/on), the API runs in API-only mode and no vendor code is imported.
 
 import userRoutes from './routes/users.js';
 import automationRoutes from './routes/automation/automation.js';
@@ -309,10 +309,18 @@ if (!IS_WORKER) {
     .filter(Boolean);
 
   const jobMap = {
-    bofa: runBofaJob,
+    // Lazy-load BoFA job only when explicitly requested in worker mode
+    async bofa() {
+      const mod = await import('./vendors/bofa/bofaJob.js');
+      const fn = mod.default || mod.bofaJob || mod.runBofaJob || mod;
+      if (typeof fn !== 'function') {
+        throw new Error('BoFA job module did not export a function');
+      }
+      return fn();
+    },
     // add more jobs here later, e.g.:
-    // privy: runPrivyJob,
-    // redfin: runRedfinJob,
+    // async privy() { const m = await import('./vendors/privy/run.js'); return (m.default||m)(); },
+    // async redfin() { const m = await import('./vendors/redfin/run.js'); return (m.default||m)(); },
   };
 
   (async () => {
