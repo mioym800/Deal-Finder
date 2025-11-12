@@ -114,13 +114,12 @@ const IS_WORKER = ['1','true','yes','on'].includes(String(process.env.AUTOMATION
 // When AUTOMATION_WORKER is not truthy (1/true/yes/on), the API runs in API-only mode and no vendor code is imported.
 
 import userRoutes from './routes/users.js';
-import automationRoutes from './routes/automation/automation.js';
-import automationStatusRoutes from './routes/automation/status.js'
+// Automation routes are loaded lazily in API mode to avoid pulling worker/vendor code
+let automationRoutes = null, automationStatusRoutes = null, automationServiceRoutes = null;
 import authRoutes from './routes/auth.js';
 import propertyRoutes from './routes/properties.js';
 import emailRoutes from './routes/email.js';
 import floodRoute from './routes/flood.js';
-import automationServiceRoutes from './routes/automation/automationService.js';
 import dashboardRoutes from './routes/dashboard.js';
 
 // Global guards: never crash the process; log and continue
@@ -229,9 +228,26 @@ const apiRoutes = express.Router();
 // Mount sub-routers on apiRoutes FIRST (clear grouping)
 apiRoutes.use('/auth', authRoutes);
 apiRoutes.use('/user', userRoutes);
-apiRoutes.use('/automation', automationRoutes);
-apiRoutes.use('/automation/status', automationStatusRoutes);
-apiRoutes.use('/automation/service', automationServiceRoutes);
+// Conditionally load automation routes only when explicitly enabled.
+const ENABLE_AUTOMATION_API = ['1','true','yes','on'].includes(String(process.env.ENABLE_AUTOMATION_API || '').toLowerCase());
+if (ENABLE_AUTOMATION_API) {
+  try {
+    const modA = await import('./routes/automation/automation.js');
+    automationRoutes = modA.default || modA;
+    const modS = await import('./routes/automation/status.js');
+    automationStatusRoutes = modS.default || modS;
+    const modAS = await import('./routes/automation/automationService.js');
+    automationServiceRoutes = modAS.default || modAS;
+    apiRoutes.use('/automation', automationRoutes);
+    apiRoutes.use('/automation/status', automationStatusRoutes);
+    apiRoutes.use('/automation/service', automationServiceRoutes);
+    L.info('Automation routes enabled');
+  } catch (e) {
+    L.error('Failed to load automation routes; continuing without them', { error: e?.message });
+  }
+} else {
+  L.info('Automation routes disabled (ENABLE_AUTOMATION_API not set)');
+}
 apiRoutes.use('/properties', propertyRoutes);
 // Non-API namespaces
 app.use('/email', emailRoutes);
@@ -265,13 +281,15 @@ if (!IS_WORKER) {
             '/email/*',
             '/api/auth/*',
             '/api/user/*',
-            '/api/automation/*',
-            '/api/automation/status/*',
-            '/api/automation/service/*',
             '/api/properties/*',
             '/api (flood)',
             '/api/agent-offers/*',
             '/api/dashboard/*',
+            ...(ENABLE_AUTOMATION_API ? [
+              '/api/automation/*',
+              '/api/automation/status/*',
+              '/api/automation/service/*',
+            ] : []),
           ],
         });
         L.info('Base API endpoint', { url: `http://localhost:${boundPort}/api` });
