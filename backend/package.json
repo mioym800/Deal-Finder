@@ -1,0 +1,61 @@
+{
+  "name": "real-estate-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "api": "AUTOMATION_WORKER=0 node server.js",
+    "worker": "AUTOMATION_WORKER=1 node server.js",
+    "dev": "nodemon server.js",
+    "start": "AUTOMATION_WORKER=0 node server.js",
+    "all": "RUN_IMMEDIATELY=true JOBS=home_valuations,bofa,enrichAgents,agent_offers npm run worker",
+    "worker:privy": "JOBS=privy npm run worker",
+    "worker:chase": "JOBS=chase npm run worker",
+    "worker:enrich": "JOBS=enrich_agent npm run worker",
+    "worker:bofa": "JOBS=bofa npm run worker",
+    "run-all": "npm run api & npm run worker"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "https-proxy-agent": "^5.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.16.1",
+    "mustache": "^4.2.0",
+    "node-fetch": "^2.7.0",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.5",
+    "open": "^10.2.0",
+    "openai": "^5.23.2",
+    "p-limit": "^7.1.1",
+    "p-queue": "^8.1.1",
+    "playwright": "^1.56.1",
+    "proxy-chain": "^2.5.9",
+    "puppeteer": "^24.11.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "undici": "^6.22.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "overrides": {
+    "puppeteer-core": "24.11.2"
+  },
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

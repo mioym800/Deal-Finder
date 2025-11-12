@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Offer to Purchase</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.5;
+        color: #222;
+        padding: 20px;
+      }
+      h2 {
+        color: #003366;
+        margin-bottom: 10px;
+      }
+      .section {
+        margin-top: 20px;
+      }
+      .label {
+        font-weight: bold;
+      }
+      .offer-price {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #007b00;
+      }
+      footer {
+        margin-top: 40px;
+        font-size: 0.9em;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>OFFER TO PURCHASE</h2>
+
+    <p><span class="label">Date:</span> {{date}}</p>
+    <p><span class="label">Agent Name:</span> {{agent_name}}</p>
+
+    <div class="section">
+      <p><span class="label">Subject Address:</span> {{property_address}}</p>
+      <p>
+        <span class="label">Offer Price:</span>
+        <span class="offer-price">{{offer_price}}</span>
+      </p>
+      <p><span class="label">EMD:</span> {{emd}}</p>
+      <p><span class="label">Terms:</span> {{terms}}</p>
+    </div>
+
+    <div class="section">
+      <p><strong>Buyer:</strong><br />
+        Mioym Properties c/o Marc Cox<br />
+        2900 Westchester Ave<br />
+        Suite 302, Harrison, NY 10577<br />
+        Phone: 914-488-4228
+      </p>
+    </div>
+
+    <div class="section">
+      <p><strong>Title / Escrow:</strong><br />
+        Susan Makin, Chief Operating Officer<br />
+        15 Crawford Street<br />
+        Needham, MA 02494<br />
+        PH: 617-431-2011<br />
+        FX: 781-465-6100<br />
+        Email: <a href="mailto:Susan@KrisslawAtlantic.com">Susan@KrisslawAtlantic.com</a><br />
+        Website: <a href="https://www.krisslawatlantic.com">www.krisslawatlantic.com</a>
+      </p>
+    </div>
+
+    <footer>
+      <p>This offer was sent by {{reply_to}} via Mioym Deal Finder.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+services:
+  # ------------------ WEB / API ------------------
+  - type: web
+    name: deal-finder-api
+    env: node
+    rootDir: backend
+    plan: starter
+    buildCommand: PUPPETEER_SKIP_DOWNLOAD=1 npm ci
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3015"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      # ---- SMTP (SendGrid recommended) ----
+      - key: SMTP_HOST
+        value: smtp.sendgrid.net
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        value: apikey
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: "MIOYM Deal Finder <no-reply@livemarketdeals.com>"
+      - key: EMAIL_DRY_RUN
+        value: "0"
+      # ---- Master admin bootstrap ----
+      - key: MASTER_ADMIN_EMAIL
+        value: admin@yourco.com
+      - key: MASTER_ADMIN_PASSWORD
+        value: ChangeMe!234
+      - key: MASTER_ADMIN_USER_ID
+        value: admin-root
+      - key: MASTER_ADMIN_NAME
+        value: Marc Cox
+      - key: MASTER_ADMIN_STATES
+        value: ALL
+      # ---- Puppeteer safety (API shouldn’t launch Chrome) ----
+      - key: PUPPETEER_ARGS
+        value: "--no-sandbox --disable-dev-shm-usage"
+      - key: PRIVY_USE_BROWSER_PROFILE
+        value: "false"
+
+  # ------------------ BACKGROUND WORKER ------------------
+  - type: worker
+    name: deal-finder-worker
+    env: node
+    rootDir: backend
+    plan: starter
+
+    # Skip Chrome download at build; we install it at runtime onto the persistent disk
+    buildCommand: PUPPETEER_SKIP_DOWNLOAD=1 npm ci
+
+    # With the disk mounted, install Chrome into a persistent cache before starting
+    preDeployCommand: bash -lc 'rm -rf /var/data/puppeteer/chrome/linux-* && mkdir -p /var/data/puppeteer && PUPPETEER_CACHE_DIR=/var/data/puppeteer npx puppeteer@24.11.2 browsers install chrome@140.0.7339.82'
+
+    startCommand: AUTOMATION_WORKER=1 node server.js
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+      # ---- Scheduler / selection ----
+      - key: RUN_IMMEDIATELY
+        value: "true"
+      - key: RUN_INTERVAL_MS
+        value: "600000"                # 10 minutes
+      - key: JOBS
+        value: "privy,bofa,chase,movoto,enrich_agents,agent_offers"
+      - key: AUTOMATION_LOCK_FILE
+        value: "/var/data/automation.lock"
+
+      # ---- Chromium profile & flags ----
+      - key: CHROME_USER_DATA_DIR
+        value: "/var/data/chrome-profile"
+      - key: PUPPETEER_CACHE_DIR
+        value: "/var/data/puppeteer"
+      - key: PUPPETEER_DOWNLOAD_PATH
+        value: "/var/data/puppeteer"
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: "/var/data/puppeteer/chrome/linux-140.0.7339.82/chrome-linux64/chrome"
+      - key: GOOGLE_CHROME_BIN
+        value: "/var/data/puppeteer/chrome/linux-140.0.7339.82/chrome-linux64/chrome"
+      - key: PUPPETEER_ARGS
+        value: "--no-sandbox --disable-dev-shm-usage"
+      - key: HEADLESS
+        value: "true"
+      - key: PRIVY_HEADLESS
+        value: "true"
+
+      # ---- Vendor logins / toggles ----
+      - key: PRIVY_EMAIL
+        sync: false
+      - key: PRIVY_PASSWORD
+        sync: false
+      - key: PRIVY_USE_PAID
+        value: "1"
+      - key: MOVOTO_USE_PAID
+        value: "1"
+      - key: BOFA_USE_PAID
+        value: "0"
+      - key: CHASE_USE_PAID
+        value: "0"
+      - key: BOFA_FAST
+        value: "1"
+      - key: CHASE_PROXY_MODE
+        value: "auto"
+      - key: PRIVY_PROXY_MODE
+        value: "auto"
+      - key: MOVOTO_PROXY_MODE
+        value: "auto"
+      - key: MOVOTO_MAX_RETRIES
+        value: "2"
+      - key: MOVOTO_STEP_TIMEOUT_MS
+        value: "15000"
+      - key: MOVOTO_TOTAL_TIME_BUDGET_MS
+        value: "120000"
+      - key: MOVOTO_MAX_CONCURRENCY
+        value: "3"
+      - key: VENDOR_MAX_RETRIES
+        value: "2"
+      - key: PRIVY_NAV_TIMEOUT_MS
+        value: "90000"
+
+      # ---- Concurrency & pools ----
+      - key: AUTOMATION_CONCURRENCY
+        value: "100"                   # your request
+      - key: AUTOCONCURRENCY_CAP
+        value: "100"                   # requires matching code clamp
+      - key: HOME_VALUATIONS_CONCURRENCY
+        value: "100"
+      - key: MOVOTO_POOL_SIZE
+        value: "10"
+      - key: BOFA_POOL_SIZE
+        value: "10"
+      - key: CHASE_POOL_SIZE
+        value: "6"
+      - key: CURRENT_LISTINGS_CONCURRENCY
+        value: "1"
+      - key: CHASE_ATTEMPT_BUDGET_MS
+        value: "45000"
+      - key: MOVOTO_ATTEMPT_TIMEOUT_MS
+        value: "90000"
+      - key: SHARD_COUNT
+        value: "1"
+      - key: SHARD_INDEX
+        value: "0"
+
+      # ---- Proxies ----
+      - key: DECODO_ENABLED
+        value: "true"
+      - key: DECODO_USER
+        sync: false
+      - key: DECODO_PASS
+        sync: false
+      - key: DECODO_GATEWAY
+        sync: false
+      - key: PAID_PROXIES
+        sync: false
+      - key: PROXY_FORCE_PAID_ONLY
+        value: "false"
+      - key: PROXY_BYPASS_DOMAINS
+        value: "bankofamerica.com,homevaluerealestatecenter.bankofamerica.com,chase.com,corelogic.com,valuemap.corelogic.com"
+
+      # ---- Integrations ----
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CHASE_USE_OPENAI_FALLBACK
+        value: "1"
+      - key: SEARCH_PROVIDER
+        value: "serpapi"
+      - key: SERPAPI_API_KEY
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+
+    disks:
+      - name: worker-data
+        mountPath: /var/data
+        sizeGB: 2

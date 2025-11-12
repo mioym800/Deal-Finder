@@ -1,0 +1,87 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+*/chrome-user-data/*
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Logs / temp ---
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/
+.cache/
+*.pid
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+build/
+.eslintcache
+.parcel-cache/
+.storybook-out/
+.npm/
+.pnp/
+.pnp.js
+.next/
+.nuxt/
+coverage/
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.mypy_cache/
+.pytype/
+.pytest_cache/
+
+# --- Browser automation (Puppeteer/Playwright/etc) ---
+.puppeteer/
+.playwright/
+chrome-user-data*/
+user-data-dir*/
+.crwonloads/
+
+
+
+# --- Misc tool/state ---
+.sass-cache/
+bower_components/
+.cache-loader/
+
+# Ignore Chrome/Privy local profiles and caches
+ChromePrivyProfile/
+"/Users/manas_mm/ChromePrivyProfile"/

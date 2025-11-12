@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3015:3015"
+    env_file:
+      - .env
+    # Only API mode (no worker)
+    environment:
+      - AUTOMATION_WORKER=0
+
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - AUTOMATION_WORKER=1
+      - RUN_IMMEDIATELY=true
+      # pick jobs you want active in prod
+      - JOBS=privy,bofa,chase,movoto,enrich_agents,agent_offers
+    # Workers don’t need ports

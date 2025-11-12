@@ -1,0 +1,26 @@
+OFFER TO PURCHASE
+
+Date: {{date}}
+Agent Name: {{agent_name}}
+
+Subject Address: {{property_address}}
+Offer Price: {{offer_price}}
+EMD: {{emd}}
+Terms: {{terms}}
+
+Buyer:
+Mioym Properties c/o Marc Cox
+2900 Westchester Ave
+Suite 302. Harrison, NY 10577
+Phone: 914-488-4228
+
+Title / Escrow:
+Susan Makin, Chief Operating Officer
+15 Crawford Street
+Needham, MA 02494
+PH: 617-431-2011
+FX: 781-465-6100
+Email: Susan@KrisslawAtlantic.com
+Website: www.krisslawatlantic.com
+
+This offer was sent by {{reply_to}} via Mioym Deal Finder.
