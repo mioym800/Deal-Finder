@@ -3,9 +3,32 @@
 // =========================
 import { API_BASE, routes } from "./constants.ts";
 
+// Resolve API base robustly across Vite / CRA / Next and fallbacks
+const _envBase =
+  (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_API_BASE || import.meta.env.VITE_APP_API_BASE)) ||
+  (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_API_BASE || process.env?.REACT_APP_API_BASE)) ||
+  (typeof window !== 'undefined' && window.__API_BASE__) ||
+  '';
+
+/**
+ * Prefer API_BASE from constants.ts, unless it's clearly localhost while we're in production,
+ * in which case prefer environment-provided base.
+ */
+const looksLikeLocalhost = (u) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(String(u || ''));
+const inBrowserProd = (typeof window !== 'undefined') && !/localhost|127\.0\.0\.1/i.test(window.location.host);
+
+export const RESOLVED_API_BASE = (() => {
+  // Priority: explicit env > constants API_BASE
+  // but if constants.ts already has a non-localhost URL, keep it.
+  if (API_BASE && !looksLikeLocalhost(API_BASE)) return API_BASE;
+  if (_envBase) return _envBase;
+  // Final fallback: constants value (even if localhost), so dev keeps working
+  return API_BASE || '';
+})();
+
 // Debug: log API base once in dev
 if (typeof window !== 'undefined' && !window.__API_BASE_LOGGED__) {
-  console.log('[helpers] API_BASE =', API_BASE);
+  console.log('[helpers] API_BASE (resolved) =', RESOLVED_API_BASE);
   window.__API_BASE_LOGGED__ = true;
 }
 
@@ -72,9 +95,9 @@ export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 // ---- Low-level fetch wrapper (adds Bearer token if present) ----
 export const apiFetch = (url, opts = {}) => {
   // Build absolute URL: if `url` is relative, prefix with API_BASE
-  const fullUrl = /^https?:\/\//i.test(url)
-    ? url
-    : `${API_BASE.replace(/\/$/, '')}/${String(url).replace(/^\//, '')}`;
+  const base = String(RESOLVED_API_BASE || '').replace(/\/$/, '');
+  const path = String(url || '').replace(/^\//, '');
+  const fullUrl = /^https?:\/\//i.test(url) ? url : `${base}/${path}`;
 
   const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
   const token = getToken();
