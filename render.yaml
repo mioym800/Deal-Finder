@@ -1,26 +1,263 @@
-services:
-  # ------------------ WEB / API ------------------
-  - type: web
-    name: deal-finder-api
-    env: node
-    rootDir: backend
-    plan: starter
-    buildCommand: PUPPETEER_SKIP_DOWNLOAD=1 npm ci
-    startCommand: node server.js
+# render.yaml
+
+envVarGroups:
+  - name: dealfinder-prod
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: "3015"
+      # ===== PUPPETEER / CHROME (UBUNTU) =====
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: /usr/bin/google-chrome
+      - key: CHROME_PATH
+        value: /usr/bin/google-chrome
+      - key: PUPPETEER_CACHE_DIR
+        value: /home/user1/.cache/puppeteer
+      - key: PUPPETEER_TMP_DIR
+        value: /tmp
+      - key: PUPPETEER_PROTOCOL_TIMEOUT_MS
+        value: "180000"
+      - key: TMPDIR
+        value: /tmp
+      - key: PPTR_HEADLESS
+        value: "false"
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: "1"
+      - key: PUPPETEER_ARGS
+        value: --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage
+      - key: PROXY_COOLOFF_MS
+        value: "300000"
+      - key: PUPPETEER_EXTRA_ARGS
+        value: --disable-quic
+      - key: PPTR_PROTOCOL_TIMEOUT
+        value: "300000"
+      - key: HEADLESS_MODE
+        value: shell
+      - key: SHARED_CHROME_USER_DATA_DIR
+        value: /home/user1/.cache/deal-finder/shared-profile
+      - key: KEEP_BROWSER_ALIVE
+        value: "true"
+
+      # ===== CORE =====
       - key: MONGO_URI
-        sync: false
       - key: JWT_SECRET
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
+      - key: AUTOMATION_LOCK_FILE
+        value: /tmp/automation.worker.lock
+      - key: NODE_OPTIONS
+        value: --max_old_space_size=2048
+
+      # ===== PRIVY =====
+      - key: PRIVY_EMAIL
+      - key: PRIVY_PASSWORD
+      - key: PRIVY_HEADLESS
+        value: "true"
+      - key: PRIVY_MAX_TABS
+        value: "1"
+      - key: PRIVY_DASHBOARD_TIMEOUT_MS
+        value: "120000"
+      - key: PRIVY_RELOAD_ON_TIMEOUT
+        value: "1"
+      - key: PRIVY_READY_SELECTOR
+        value: .properties-found
+      - key: PRIVY_JITTER_MIN_MS
+        value: "300"
+      - key: PRIVY_JITTER_MAX_MS
+        value: "1200"
+      - key: PRIVY_POST_LOGIN_URL
+        value: https://app.privy.pro/dashboard
+      - key: PRIVY_POOL_SIZE
+        value: "6"
+      - key: PRIVY_USE_PAID
+        value: "0"
+      - key: PRIVY_REUSE_SESSION
+        value: "1"
+      - key: PRIVY_SERIALIZE_LOGIN
+        value: "1"
+      - key: PRIVY_USE_BROWSER_PROFILE
+        value: "true"
+      - key: PRIVY_PROFILE_ROOT
+        value: /home/user1/.cache/privy/profiles
+      - key: PRIVY_PROFILE_NAME
+        value: default
+      - key: PRIVY_SESSION_FILE
+        value: /home/user1/.cache/privy/privy_session.json
+      - key: PRIVY_PROXY_MODE
+        value: off
+      - key: PRIVY_REMOTE_DEBUG_URL
+        value: ""
+      - key: PRIVY_STATES
+        value: ALL
+      - key: PRIVY_MAX_PARALLEL_STATES
+        value: "1"
+      - key: PRIVY_CONCURRENCY
+        value: "1"
+      - key: PRIVY_KEEPALIVE_MINUTES
+        value: "25"
+      - key: PRIVY_NAV_TIMEOUT_MS
+        value: "120000"
+      - key: PRIVY_LIST_SELECTOR_TIMEOUT_MS
+        value: "50000"
+      - key: PRIVY_HYDRATE_MAX_RELOADS
+        value: "1"
+      - key: PRIVY_INCLUDE_BASE
+        value: "false"
+      - key: PRIVY_TAGS
+        value: tired_landlord,foreclosures
+      - key: PRIVY_URL_BATCH_SIZE
+        value: "75"
+      - key: PRIVY_URL_BATCH_PAUSE_MS
+        value: "4000"
+      - key: PRIVY_DEBUG_HTML
+        value: "1"
+
+      # ===== AUTOMATION / JOBS =====
+      - key: RUN_IMMEDIATELY
+        value: "true"
+      - key: AUTOCONCURRENCY_CAP
+        value: "12"
+      - key: GLOBAL_CONCURRENCY
+        value: "10"
+      - key: AUTONOMOUS_NOTE
+        value: "deployed-via-render"
+
+      # ===== DECODO / PROXY =====
+      - key: DECODO_ENABLED
+        value: "true"
+      - key: DECODO_FORMAT
+        value: inline
+      - key: DECODO_GATEWAY
+        value: gate.decodo.com
+      - key: DECODO_COUNTRY
+        value: us
+      - key: DECODO_USER
+      - key: DECODO_PASS
+      - key: PROXY_FORCE_PAID_ONLY
+        value: on
+      - key: PROXY_WARM_MIN_HEALTHY
+        value: "3"
+      - key: PROXY_INLINE_CREDS
+        value: "1"
+      - key: PROXY_MASK_CREDS
+        value: "0"
+      - key: PROXY_STRIP_CREDS
+        value: "0"
+      - key: PROXY_HARD_VENDOR_ISOLATION
+        value: "1"
+      - key: FANOUT_CAP
+        value: "1600"
+      - key: PROXY_BYPASS_DOMAINS
+        value: localhost,127.0.0.1,::1,app.privy.pro,privy.pro,*.privy.pro
+      - key: PROXY_HEALTHCHECK_URL
+        value: https://homevaluerealestatecenter.bankofamerica.com/
+      - key: PROXY_HEALTHCHECK_SAMPLE
+        value: "6"
+      - key: PROXY_HEALTHCHECK_TIMEOUT_MS
+        value: "8000"
+
+      # (Optional lists)
+      - key: PAID_PROXIES
+      - key: DECODO_PROXY_URL
+
+      # ===== BOFA =====
+      - key: BOFA_USE_PAID
+        value: "1"
+      - key: BOFA_PROXY_MODE
+        value: paid
+      - key: BOFA_FAST
+        value: "1"
+      - key: BOFA_ADBLOCK
+        value: "0"
+      - key: BOFA_ROTATE_ON_NET_ERRORS
+        value: "1"
+      - key: BOFA_FAILOVER_TO_DIRECT
+        value: "0"
+      - key: BOFA_AUTORELAX_ON_NO_PAID
+        value: "1"
+      - key: BOFA_MAX_CONCURRENCY
+        value: "10"
+      - key: BOFA_PER_PROXY_INFLIGHT
+        value: "1"
+      - key: BOFA_BATCH_SIZE
+        value: "100000000000000"
+      - key: BOFA_PAGES_PER_PROXY
+        value: "3"
+      - key: BOFA_PAGE_READY_TIMEOUT_MS
+        value: "60000"
+      - key: BOFA_RESULT_IFRAME_WAIT_MS
+        value: "45000"
+      - key: BOFA_NETWORK_IDLE_MS
+        value: "2000"
+      - key: BOFA_POST_SUBMIT_IDLE_MS
+        value: "1000"
+      - key: BOFA_MIN_RESULT_DOLLAR
+        value: "20000"
+      - key: BOFA_MAX_ATTEMPTS
+        value: "2"
+      - key: DEBUG_BOFA
+        value: "1"
+      - key: BOFA_BLOCK_MEDIA
+        value: "1"
+      - key: BOFA_SINGLE_TRY
+        value: "1"
+      - key: BOFA_CONTINUOUS
+        value: "1"
+      - key: BOFA_IDLE_MS
+        value: "15000"
+      - key: BOFA_HIST_ENABLED
+        value: "1"
+      - key: BOFA_LRU_ENABLED
+        value: "1"
+      - key: BOFA_SCREEN_ON_ERROR
+        value: "1"
+      - key: BOFA_SNAP_EVERY
+        value: "1"
+      - key: BOFA_DUMP_HTML
+        value: "1"
+      - key: BOFA_DEBUG_DIR
+        value: /tmp/bofa_debug
+      - key: BOFA_REWAIT_MS
+        value: "8000"
+      - key: BOFA_MAX_RETRIES
+        value: "1"
+      - key: BOFA_ROTATE_MAX_PER_ATTEMPT
+        value: "1"
+      - key: BOFA_VERBOSE
+        value: "1"
+      - key: BOFA_NAV_TIMEOUT_MS
+        value: "15000"
+      - key: BOFA_RESULTS_WAIT_MS
+        value: "15000"
+      - key: BOFA_HARD_TIMEOUT_MS
+        value: "30000"
+      - key: BOFA_PORT_ALLOWLIST
+        value: 10001,10002,10003,10004,10005,10006,10007,10008,10009,10010,10011,10012,10014,10016,10018,10019,10020
+      - key: BOFA_POOL_SIZE
+        value: "20"
+      - key: BOFA_DOM_TIMEOUT_MS
+        value: "30000"
+      - key: BOFA_RESULT_TIMEOUT_MS
+        value: "50000"
+      - key: BOFA_TOTAL_TIME_BUDGET_MS
+        value: "70000"
+      - key: BOFA_STEP_TIMEOUT_MS
+        value: "12000"
+      - key: PROXY_VENDOR_BOFA
+        value: paid
+      - key: BOFA_EGRESS_COOLDOWN_MS
+        value: "1000"
+      - key: BOFA_DEBUG_HTML
+        value: "1"
+      - key: BOFA_SUGGESTION_WAIT_MS
+        value: "800"
+      - key: BOFA_ENTER_RETRY_MS
+        value: "600"
+      - key: BOFA_PROXY_TRIES
+        value: "20"
+      # - key: BOFA_SKIP_PRECHECK
+      #   value: "1" # optional
+
+      - key: PAID_PROXIES_BOFA
+
+      # ===== FRONTEND / EMAIL =====
       - key: PUBLIC_BASE_URL
-        sync: false
-      # ---- SMTP (SendGrid recommended) ----
+        value: http://127.0.0.1:3015
       - key: SMTP_HOST
         value: smtp.sendgrid.net
       - key: SMTP_PORT
@@ -28,168 +265,186 @@ services:
       - key: SMTP_SECURE
         value: "false"
       - key: SMTP_USER
-        value: apikey
       - key: SMTP_PASS
-        sync: false
       - key: SMTP_FROM
-        value: "MIOYM Deal Finder <no-reply@livemarketdeals.com>"
       - key: EMAIL_DRY_RUN
         value: "0"
-      # ---- Master admin bootstrap ----
+
+      # ===== INTEGRATIONS / KEYS =====
+      - key: SEARCH_PROVIDER
+        value: none
+      - key: SERPAPI_API_KEY
+      - key: GOOGLE_MAPS_API_KEY
+      - key: OPENAI_API_KEY
+      - key: ENRICH_AGENT_MODE
+        value: openai
+      - key: ENRICH_AGENT_CONCURRENCY
+        value: "3"
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: ENRICH_AGENT_BATCH
+        value: "150"
+
+      # ===== ADMIN / BOOTSTRAP =====
       - key: MASTER_ADMIN_EMAIL
-        value: admin@yourco.com
       - key: MASTER_ADMIN_PASSWORD
-        value: ChangeMe!234
       - key: MASTER_ADMIN_USER_ID
         value: admin-root
       - key: MASTER_ADMIN_NAME
         value: Marc Cox
       - key: MASTER_ADMIN_STATES
         value: ALL
-      # ---- Puppeteer safety (API shouldn’t launch Chrome) ----
-      - key: PUPPETEER_ARGS
-        value: "--no-sandbox --disable-dev-shm-usage"
-      - key: PRIVY_USE_BROWSER_PROFILE
-        value: "false"
 
-  # ------------------ BACKGROUND WORKER ------------------
-  - type: worker
-    name: deal-finder-worker
-    env: node
-    rootDir: backend
-    plan: starter
-
-    # Skip Chrome download at build; we install it at runtime onto the persistent disk
-    buildCommand: PUPPETEER_SKIP_DOWNLOAD=1 npm ci
-
-    # With the disk mounted, install Chrome into a persistent cache before starting
-    preDeployCommand: bash -lc 'rm -rf /var/data/puppeteer/chrome/linux-* && mkdir -p /var/data/puppeteer && PUPPETEER_CACHE_DIR=/var/data/puppeteer npx puppeteer@24.11.2 browsers install chrome@140.0.7339.82'
-
-    startCommand: AUTOMATION_WORKER=1 node server.js
-
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: MONGO_URI
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-
-      # ---- Scheduler / selection ----
-      - key: RUN_IMMEDIATELY
+      # ===== REDFIN / CRAWL =====
+      - key: REDFIN_CONCURRENCY
+        value: "1"
+      - key: REDFIN_PROFILE_NAME
+        value: default
+      - key: REDFIN_SEARCH_QUERIES
+        value: ""
+      - key: REDFIN_MIN_PRICE
+        value: "75000"
+      - key: REDFIN_MAX_PRICE
+        value: "750000"
+      - key: REDFIN_MIN_SQFT
+        value: "1000"
+      - key: REDFIN_MAX_SQFT
+        value: "5000"
+      - key: REDFIN_MIN_BEDS
+        value: "3"
+      - key: REDFIN_HOA_NO
+        value: "1"
+      - key: REDFIN_DATE_RANGE
+        value: all
+      - key: REDFIN_PROFILE_ROOT
+        value: $HOME/Library/Caches/redfin/profiles
+      - key: REDFIN_SELECTOR_TIMEOUT_MS
+        value: "60000"
+      - key: REDFIN_NAV_TIMEOUT_MS
+        value: "120000"
+      - key: REDFIN_START_URL
+        value: https://www.redfin.com/neighborhood/743183/MA/Agawam/East-Agawam
+      - key: SINGLE_CHROME_ONLY
+        value: "0"
+      - key: REDFIN_HEADLESS
         value: "true"
-      - key: RUN_INTERVAL_MS
-        value: "600000"                # 10 minutes
-      - key: JOBS
-        value: "privy,bofa,chase,movoto,enrich_agents,agent_offers"
-      - key: AUTOMATION_LOCK_FILE
-        value: "/var/data/automation.lock"
+      - key: REDFIN_COLLECTION
+        value: current_listings
 
-      # ---- Chromium profile & flags ----
-      - key: CHROME_USER_DATA_DIR
-        value: "/var/data/chrome-profile"
-      - key: PUPPETEER_CACHE_DIR
-        value: "/var/data/puppeteer"
-      - key: PUPPETEER_DOWNLOAD_PATH
-        value: "/var/data/puppeteer"
-      - key: PUPPETEER_EXECUTABLE_PATH
-        value: "/var/data/puppeteer/chrome/linux-140.0.7339.82/chrome-linux64/chrome"
-      - key: GOOGLE_CHROME_BIN
-        value: "/var/data/puppeteer/chrome/linux-140.0.7339.82/chrome-linux64/chrome"
-      - key: PUPPETEER_ARGS
-        value: "--no-sandbox --disable-dev-shm-usage"
+      - key: CRAWLBASE_TOKEN
+      - key: SCRAPE_MODE
+        value: sitemap
+      - key: CONCURRENCY
+        value: "6"
+      - key: MAX_CITIES
+        value: "10000000000000000000000000000000000000000000000000000000000"
+      - key: MAX_INDEX_PAGES_PER_CITY
+        value: "1"
+      - key: MAX_LISTINGS_PER_CITY
+        value: "25"
+      - key: REDFIN_UNKNOWN_OK
+        value: "1"
+      - key: REDFIN_REQUIRE_HOA_NO
+        value: "0"
+      - key: REDFIN_REQUIRE_RECENT
+        value: "0"
+
+      # ===== CHASE / REALTOR =====
+      - key: CHASE_URL
+        value: https://www.chase.com/personal/mortgage/calculators-resources/home-value-estimator
+      - key: LIMIT
+        value: "25000000000000000000000000000000000000"
+      - key: START_SKIP
+        value: "0"
+      - key: REALTOR_URLS
+        value: https://www.realtor.com/myhome/
+      - key: CHASE_HEADLESS
+        value: "true"
       - key: HEADLESS
         value: "true"
-      - key: PRIVY_HEADLESS
-        value: "true"
+      - key: SLOWMO
+        value: "0"
+      - key: SCREENSHOT_DIR
+        value: ./snapshots/realtor
 
-      # ---- Vendor logins / toggles ----
-      - key: PRIVY_EMAIL
-        sync: false
-      - key: PRIVY_PASSWORD
-        sync: false
-      - key: PRIVY_USE_PAID
-        value: "1"
+      # ===== GEMINI =====
+      - key: GEMINI_API_KEY
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+
+      # ===== GENERIC RESI PROXY (UNUSED DEFAULTS) =====
+      - key: PROXY_HOST
+        value: residential-proxy.provider.com
+      - key: PROXY_PORT
+        value: "8080"
+      - key: PROXY_USERNAME
+      - key: PROXY_PASSWORD
+
+      # ===== MOVOTO/ZILLOW PRICE SYNC =====
+      - key: MOVOTO_ENABLED
+        value: "true"
       - key: MOVOTO_USE_PAID
-        value: "1"
-      - key: BOFA_USE_PAID
-        value: "0"
-      - key: CHASE_USE_PAID
-        value: "0"
-      - key: BOFA_FAST
-        value: "1"
-      - key: CHASE_PROXY_MODE
-        value: "auto"
-      - key: PRIVY_PROXY_MODE
-        value: "auto"
-      - key: MOVOTO_PROXY_MODE
-        value: "auto"
-      - key: MOVOTO_MAX_RETRIES
-        value: "2"
-      - key: MOVOTO_STEP_TIMEOUT_MS
-        value: "15000"
-      - key: MOVOTO_TOTAL_TIME_BUDGET_MS
-        value: "120000"
-      - key: MOVOTO_MAX_CONCURRENCY
-        value: "3"
-      - key: VENDOR_MAX_RETRIES
-        value: "2"
-      - key: PRIVY_NAV_TIMEOUT_MS
-        value: "90000"
-
-      # ---- Concurrency & pools ----
-      - key: AUTOMATION_CONCURRENCY
-        value: "100"                   # your request
-      - key: AUTOCONCURRENCY_CAP
-        value: "100"                   # requires matching code clamp
-      - key: HOME_VALUATIONS_CONCURRENCY
-        value: "100"
-      - key: MOVOTO_POOL_SIZE
-        value: "10"
-      - key: BOFA_POOL_SIZE
-        value: "10"
-      - key: CHASE_POOL_SIZE
-        value: "6"
-      - key: CURRENT_LISTINGS_CONCURRENCY
-        value: "1"
-      - key: CHASE_ATTEMPT_BUDGET_MS
-        value: "45000"
-      - key: MOVOTO_ATTEMPT_TIMEOUT_MS
-        value: "90000"
-      - key: SHARD_COUNT
-        value: "1"
-      - key: SHARD_INDEX
-        value: "0"
-
-      # ---- Proxies ----
-      - key: DECODO_ENABLED
         value: "true"
-      - key: DECODO_USER
-        sync: false
-      - key: DECODO_PASS
-        sync: false
-      - key: DECODO_GATEWAY
-        sync: false
-      - key: PAID_PROXIES
-        sync: false
-      - key: PROXY_FORCE_PAID_ONLY
-        value: "false"
-      - key: PROXY_BYPASS_DOMAINS
-        value: "bankofamerica.com,homevaluerealestatecenter.bankofamerica.com,chase.com,corelogic.com,valuemap.corelogic.com"
-
-      # ---- Integrations ----
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: CHASE_USE_OPENAI_FALLBACK
+      - key: PRICE_SYNC_PROXY_ENABLED
+        value: "true"
+      - key: PRICE_SYNC_PROXY_GATEWAY
+        value: gate.decodo.com
+      - key: PRICE_SYNC_PROXY_USER
+      - key: PRICE_SYNC_PROXY_PASS
+      - key: PRICE_SYNC_PROXY_PORTS
+        value: 10011,10012,10013,10014,10015,10016,10017,10018,10019,10020
+      - key: PRICE_SYNC_CONCURRENT_LIMIT
         value: "1"
-      - key: SEARCH_PROVIDER
-        value: "serpapi"
-      - key: SERPAPI_API_KEY
-        sync: false
-      - key: GOOGLE_MAPS_API_KEY
-        sync: false
+      - key: PRICE_SYNC_PAGE_TIMEOUT_MS
+        value: "45000"
+      - key: PRICE_SYNC_HEADLESS
+        value: "true"
+      - key: PRICE_SYNC_DEBUG
+        value: "1"
+      - key: PRICE_SYNC_SCREENSHOT_ON_ERROR
+        value: "1"
+      - key: PRICE_SYNC_DEBUG_DIR
+        value: /tmp/price_sync_debug
+      - key: PRICE_SYNC_NAV_TIMEOUT_MS
+        value: "90000"
+      - key: DECODO_API_KEY
+      - key: PRICE_SYNC_BATCH_SIZE
+        value: "10"
+      - key: PRICE_SYNC_DELAY_MIN_MS
+        value: "3000"
+      - key: PRICE_SYNC_DELAY_MAX_MS
+        value: "6000"
 
-    disks:
-      - name: worker-data
-        mountPath: /var/data
-        sizeGB: 2
+services:
+  # ---- Web API (Express) ----
+  - type: web
+    name: dealfinder-api
+    env: docker
+    plan: starter
+    autoDeploy: true
+    dockerfilePath: backend/Dockerfile
+    # If your Dockerfile already defines CMD to start the API, you can omit startCommand.
+    startCommand: npm run api
+    envVars:
+      - fromGroup: dealfinder-prod
+      - key: NODE_ENV
+        value: production
+      - key: AUTOMATION_WORKER
+        value: "0"
+    # Optional: if you have a health endpoint
+    # healthCheckPath: /health
+
+  # ---- Background worker ----
+  - type: worker
+    name: dealfinder-worker
+    env: docker
+    plan: starter
+    autoDeploy: true
+    dockerfilePath: backend/Dockerfile
+    startCommand: npm run worker
+    envVars:
+      - fromGroup: dealfinder-prod
+      - key: NODE_ENV
+        value: production
+      - key: AUTOMATION_WORKER
+        value: "1"
